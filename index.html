@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Jurimetria trabalhista Axia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --font-anthropic-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-anthropic-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --cds-font-size-caption: 0.8125rem; --cds-font-size-body: 0.9375rem; --cds-font-size-heading: 1.0625rem; --cds-font-size-title: 1.875rem;
+    --cds-font-weight-medium: 500;
+    --cds-gap-xs: .25rem; --cds-gap-sm: .5rem; --cds-gap-md: .875rem; --cds-gap-lg: 1.25rem; --cds-gap-xl: 2rem;
+    --cds-pad-xs: .25rem; --cds-pad-sm: .5rem; --cds-pad-md: .75rem; --cds-pad-lg: 1.125rem;
+    --cds-radius: 8px; --cds-dur-slow: 300ms;
+    --color-bg: #f6f7f5; --color-panel: #ffffff; --color-fg: #1d2421; --color-fg-muted: #5c6662; --color-border-line: #dde2df;
+    --color-ok: #2f7d4f; --color-warn: #b7791f; --color-bad: #b83a35;
+    --cds-chart-status-critical: #c0443e; --cds-chart-grid: #e6e9e7;
+    --cds-surface-popover: #ffffff; --cds-border: #d3d9d6; --cds-shadow-popover: 0 4px 16px rgba(20, 30, 25, .12); --cds-text-secondary: #5c6662;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #141917; --color-panel: #1c2320; --color-fg: #e7ece9; --color-fg-muted: #9aa5a0; --color-border-line: #2e3833;
+      --color-ok: #5cb882; --color-warn: #e0a84a; --color-bad: #e5736c;
+      --cds-chart-status-critical: #d9625b; --cds-chart-grid: #2a332f;
+      --cds-surface-popover: #232b28; --cds-border: #38433e; --cds-shadow-popover: 0 4px 16px rgba(0, 0, 0, .45); --cds-text-secondary: #9aa5a0;
+      color-scheme: dark;
+    }
+  }
+  html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); font-size: 15px; }
+  #dash-root { max-width: 76rem; margin-inline: auto; padding-block: 2rem 3rem;
+               padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .jx-rodape { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-md); }
+</style>
+<script>
+// Substituto mínimo da API do painel do claude.ai: dados embutidos, cálculos e desenhos.
+window.dash = (() => {
+  const DADOS = {"empresa": [{"empresa": "Axia Nordeste (ex-CHESF)", "n": 551, "fav": 166, "parc": 262, "desf": 123, "processos": 417, "pfav": 0.301, "pparc": 0.475, "pdesf": 0.223, "frag": 0.461}, {"empresa": "Axia Energia (ex-Eletrobras)", "n": 57, "fav": 32, "parc": 17, "desf": 8, "processos": 53, "pfav": 0.561, "pparc": 0.298, "pdesf": 0.14, "frag": 0.289}, {"empresa": "Axia Norte (ex-Eletronorte)", "n": 48, "fav": 27, "parc": 18, "desf": 3, "processos": 36, "pfav": 0.562, "pparc": 0.375, "pdesf": 0.062, "frag": 0.25}], "instancia": [{"id": "sent", "ordem": 1, "grupo": "Sentença (1º grau)", "n": 324, "fav": 116, "parc": 184, "desf": 24, "sem_teor": 192, "total": 757, "pfav": 0.358, "pparc": 0.568, "pdesf": 0.074, "frag": 0.358}, {"id": "acord", "ordem": 2, "grupo": "Acórdão TRT (2º grau)", "n": 334, "fav": 110, "parc": 113, "desf": 111, "sem_teor": 238, "total": 857, "pfav": 0.329, "pparc": 0.338, "pdesf": 0.332, "frag": 0.501}, {"id": "adm", "ordem": 3, "grupo": "Admissibilidade de RR (TRT/TST)", "n": 341, "fav": 140, "parc": 40, "desf": 161, "sem_teor": 4, "total": 461, "pfav": 0.411, "pparc": 0.117, "pdesf": 0.472, "frag": 0.531}, {"id": "tst", "ordem": 4, "grupo": "TST", "n": 497, "fav": 168, "parc": 36, "desf": 293, "sem_teor": 31, "total": 719, "pfav": 0.338, "pparc": 0.072, "pdesf": 0.59, "frag": 0.626}, {"id": "exec", "ordem": 5, "grupo": "Execução", "n": 268, "fav": 58, "parc": 44, "desf": 166, "sem_teor": 53, "total": 626, "pfav": 0.216, "pparc": 0.164, "pdesf": 0.619, "frag": 0.701}], "kpi": [{"n": 658, "fav": 226, "parc": 297, "desf": 135, "pfav": 0.343, "pparc": 0.451, "pdesf": 0.205, "frag": 0.431, "processos": 508, "periodo_ini": "2025-10-30", "periodo_fim": "2026-10-30", "decisoes_todas": 1764, "processos_base": 4136, "processos_pub": 2507, "sem_teor": 518}], "mensal": [{"mes": "2025-10", "n": 6, "fav": 3, "parc": 2, "desf": 1, "processos": 6, "pfav": 0.5, "pparc": 0.333, "pdesf": 0.167, "frag": 0.333}, {"mes": "2025-11", "n": 49, "fav": 13, "parc": 28, "desf": 8, "processos": 49, "pfav": 0.265, "pparc": 0.571, "pdesf": 0.163, "frag": 0.449}, {"mes": "2025-12", "n": 50, "fav": 19, "parc": 16, "desf": 15, "processos": 50, "pfav": 0.38, "pparc": 0.32, "pdesf": 0.3, "frag": 0.46}, {"mes": "2026-01", "n": 33, "fav": 13, "parc": 12, "desf": 8, "processos": 33, "pfav": 0.394, "pparc": 0.364, "pdesf": 0.242, "frag": 0.424}, {"mes": "2026-02", "n": 57, "fav": 13, "parc": 31, "desf": 13, "processos": 57, "pfav": 0.228, "pparc": 0.544, "pdesf": 0.228, "frag": 0.5}, {"mes": "2026-03", "n": 77, "fav": 34, "parc": 31, "desf": 12, "processos": 73, "pfav": 0.442, "pparc": 0.403, "pdesf": 0.156, "frag": 0.357}, {"mes": "2026-04", "n": 42, "fav": 13, "parc": 24, "desf": 5, "processos": 41, "pfav": 0.31, "pparc": 0.571, "pdesf": 0.119, "frag": 0.405}, {"mes": "2026-05", "n": 61, "fav": 18, "parc": 32, "desf": 11, "processos": 61, "pfav": 0.295, "pparc": 0.525, "pdesf": 0.18, "frag": 0.443}, {"mes": "2026-06", "n": 47, "fav": 17, "parc": 21, "desf": 9, "processos": 47, "pfav": 0.362, "pparc": 0.447, "pdesf": 0.191, "frag": 0.415}, {"mes": "2026-07", "n": 62, "fav": 15, "parc": 33, "desf": 14, "processos": 62, "pfav": 0.242, "pparc": 0.532, "pdesf": 0.226, "frag": 0.492}, {"mes": "2026-08", "n": 62, "fav": 28, "parc": 22, "desf": 12, "processos": 61, "pfav": 0.452, "pparc": 0.355, "pdesf": 0.194, "frag": 0.371}, {"mes": "2026-09", "n": 61, "fav": 20, "parc": 27, "desf": 14, "processos": 61, "pfav": 0.328, "pparc": 0.443, "pdesf": 0.23, "frag": 0.451}, {"mes": "2026-10", "n": 51, "fav": 20, "parc": 18, "desf": 13, "processos": 51, "pfav": 0.392, "pparc": 0.353, "pdesf": 0.255, "frag": 0.431}], "orgaos": [{"orgao": "Vara do Trabalho de Paulo Afonso · TRT5", "TRT": "TRT5", "n": 17, "fav": 3, "parc": 10, "desf": 4, "processos": 15, "pfav": 0.176, "pparc": 0.588, "pdesf": 0.235, "frag": 0.529, "tipo": "Vara (1º grau)"}, {"orgao": "1ª Vara do Trabalho de Juazeiro · TRT5", "TRT": "TRT5", "n": 6, "fav": 1, "parc": 4, "desf": 1, "processos": 6, "pfav": 0.167, "pparc": 0.667, "pdesf": 0.167, "frag": 0.5, "tipo": "Vara (1º grau)"}, {"orgao": "16ª Vara do Trabalho do Recife · TRT6", "TRT": "TRT6", "n": 5, "fav": 0, "parc": 5, "desf": 0, "processos": 5, "pfav": 0.0, "pparc": 1.0, "pdesf": 0.0, "frag": 0.5, "tipo": "Vara (1º grau)"}, {"orgao": "21ª Vara do Trabalho do Recife · TRT6", "TRT": "TRT6", "n": 8, "fav": 2, "parc": 5, "desf": 1, "processos": 8, "pfav": 0.25, "pparc": 0.625, "pdesf": 0.125, "frag": 0.438, "tipo": "Vara (1º grau)"}, {"orgao": "9ª Vara do Trabalho do Recife · TRT6", "TRT": "TRT6", "n": 6, "fav": 2, "parc": 4, "desf": 0, "processos": 6, "pfav": 0.333, "pparc": 0.667, "pdesf": 0.0, "frag": 0.333, "tipo": "Vara (1º grau)"}, {"orgao": "6ª Vara do Trabalho de Teresina · TRT22", "TRT": "TRT22", "n": 6, "fav": 2, "parc": 4, "desf": 0, "processos": 6, "pfav": 0.333, "pparc": 0.667, "pdesf": 0.0, "frag": 0.333, "tipo": "Vara (1º grau)"}, {"orgao": "Vara Única do Trabalho de Salgueiro · TRT6", "TRT": "TRT6", "n": 40, "fav": 15, "parc": 24, "desf": 1, "processos": 25, "pfav": 0.375, "pparc": 0.6, "pdesf": 0.025, "frag": 0.325, "tipo": "Vara (1º grau)"}, {"orgao": "Vara do Trabalho de Piripiri · TRT22", "TRT": "TRT22", "n": 19, "fav": 7, "parc": 12, "desf": 0, "processos": 19, "pfav": 0.368, "pparc": 0.632, "pdesf": 0.0, "frag": 0.316, "tipo": "Vara (1º grau)"}, {"orgao": "3ª Vara do Trabalho de Teresina · TRT22", "TRT": "TRT22", "n": 10, "fav": 5, "parc": 4, "desf": 1, "processos": 8, "pfav": 0.5, "pparc": 0.4, "pdesf": 0.1, "frag": 0.3, "tipo": "Vara (1º grau)"}, {"orgao": "20ª Vara do Trabalho do Recife · TRT6", "TRT": "TRT6", "n": 7, "fav": 4, "parc": 3, "desf": 0, "processos": 7, "pfav": 0.571, "pparc": 0.429, "pdesf": 0.0, "frag": 0.214, "tipo": "Vara (1º grau)"}, {"orgao": "Vara do Trabalho de Parnaíba · TRT22", "TRT": "TRT22", "n": 8, "fav": 8, "parc": 0, "desf": 0, "processos": 8, "pfav": 1.0, "pparc": 0.0, "pdesf": 0.0, "frag": 0.0, "tipo": "Vara (1º grau)"}, {"orgao": "2ª Vara do Trabalho de Imperatriz · TRT16", "TRT": "TRT16", "n": 8, "fav": 8, "parc": 0, "desf": 0, "processos": 8, "pfav": 1.0, "pparc": 0.0, "pdesf": 0.0, "frag": 0.0, "tipo": "Vara (1º grau)"}, {"orgao": "Segunda Turma · TRT5", "TRT": "TRT5", "n": 32, "fav": 6, "parc": 10, "desf": 16, "processos": 32, "pfav": 0.188, "pparc": 0.312, "pdesf": 0.5, "frag": 0.656, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Quarta Turma · TRT6", "TRT": "TRT6", "n": 17, "fav": 3, "parc": 6, "desf": 8, "processos": 17, "pfav": 0.176, "pparc": 0.353, "pdesf": 0.471, "frag": 0.647, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Quinta Turma · TRT5", "TRT": "TRT5", "n": 22, "fav": 4, "parc": 8, "desf": 10, "processos": 20, "pfav": 0.182, "pparc": 0.364, "pdesf": 0.455, "frag": 0.636, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Segunda Turma · TRT6", "TRT": "TRT6", "n": 16, "fav": 4, "parc": 5, "desf": 7, "processos": 15, "pfav": 0.25, "pparc": 0.312, "pdesf": 0.438, "frag": 0.594, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Gabinete Processante de Recursos · TRT5", "TRT": "TRT5", "n": 33, "fav": 11, "parc": 5, "desf": 17, "processos": 33, "pfav": 0.333, "pparc": 0.152, "pdesf": 0.515, "frag": 0.591, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Primeira Turma de Julgamento · TRT21", "TRT": "TRT21", "n": 12, "fav": 3, "parc": 6, "desf": 3, "processos": 12, "pfav": 0.25, "pparc": 0.5, "pdesf": 0.25, "frag": 0.5, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Órgão Especial · TRT5", "TRT": "TRT5", "n": 7, "fav": 3, "parc": 1, "desf": 3, "processos": 7, "pfav": 0.429, "pparc": 0.143, "pdesf": 0.429, "frag": 0.5, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Segunda Turma de Julgamento · TRT21", "TRT": "TRT21", "n": 6, "fav": 2, "parc": 2, "desf": 2, "processos": 6, "pfav": 0.333, "pparc": 0.333, "pdesf": 0.333, "frag": 0.5, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Gabinete da Vice Presidência · TRT13", "TRT": "TRT13", "n": 5, "fav": 1, "parc": 3, "desf": 1, "processos": 5, "pfav": 0.2, "pparc": 0.6, "pdesf": 0.2, "frag": 0.5, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Segunda Turma · TRT19", "TRT": "TRT19", "n": 5, "fav": 1, "parc": 3, "desf": 1, "processos": 5, "pfav": 0.2, "pparc": 0.6, "pdesf": 0.2, "frag": 0.5, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Primeira Turma · TRT6", "TRT": "TRT6", "n": 26, "fav": 9, "parc": 9, "desf": 8, "processos": 21, "pfav": 0.346, "pparc": 0.346, "pdesf": 0.308, "frag": 0.481, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Quarta Turma · TRT5", "TRT": "TRT5", "n": 37, "fav": 11, "parc": 17, "desf": 9, "processos": 36, "pfav": 0.297, "pparc": 0.459, "pdesf": 0.243, "frag": 0.473, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Terceira Turma · TRT5", "TRT": "TRT5", "n": 34, "fav": 13, "parc": 10, "desf": 11, "processos": 33, "pfav": 0.382, "pparc": 0.294, "pdesf": 0.324, "frag": 0.471, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Terceira Turma · TRT6", "TRT": "TRT6", "n": 20, "fav": 7, "parc": 9, "desf": 4, "processos": 17, "pfav": 0.35, "pparc": 0.45, "pdesf": 0.2, "frag": 0.425, "tipo": "Turma TRT (2º grau)"}, {"orgao": "1ª Turma · TRT7", "TRT": "TRT7", "n": 12, "fav": 5, "parc": 4, "desf": 3, "processos": 12, "pfav": 0.417, "pparc": 0.333, "pdesf": 0.25, "frag": 0.417, "tipo": "Turma TRT (2º grau)"}, {"orgao": "2ª Turma · TRT16", "TRT": "TRT16", "n": 8, "fav": 4, "parc": 2, "desf": 2, "processos": 8, "pfav": 0.5, "pparc": 0.25, "pdesf": 0.25, "frag": 0.375, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Primeira Turma · TRT5", "TRT": "TRT5", "n": 20, "fav": 11, "parc": 6, "desf": 3, "processos": 19, "pfav": 0.55, "pparc": 0.3, "pdesf": 0.15, "frag": 0.3, "tipo": "Turma TRT (2º grau)"}, {"orgao": "1ª Turma · TRT16", "TRT": "TRT16", "n": 11, "fav": 7, "parc": 3, "desf": 1, "processos": 9, "pfav": 0.636, "pparc": 0.273, "pdesf": 0.091, "frag": 0.227, "tipo": "Turma TRT (2º grau)"}, {"orgao": "Presidência - Admissibilidade · TST", "n": 54, "fav": 15, "parc": 0, "desf": 39, "processos": 52, "pfav": 0.278, "pparc": 0.0, "pdesf": 0.722, "frag": 0.722, "tipo": "TST", "TRT": "TST"}, {"orgao": "4ª Turma · TST", "n": 61, "fav": 14, "parc": 6, "desf": 41, "processos": 52, "pfav": 0.23, "pparc": 0.098, "pdesf": 0.672, "frag": 0.721, "tipo": "TST", "TRT": "TST"}, {"orgao": "5ª Turma · TST", "n": 62, "fav": 17, "parc": 9, "desf": 36, "processos": 55, "pfav": 0.274, "pparc": 0.145, "pdesf": 0.581, "frag": 0.653, "tipo": "TST", "TRT": "TST"}, {"orgao": "1ª Turma · TST", "n": 59, "fav": 18, "parc": 6, "desf": 35, "processos": 53, "pfav": 0.305, "pparc": 0.102, "pdesf": 0.593, "frag": 0.644, "tipo": "TST", "TRT": "TST"}, {"orgao": "Vice-Presidência · TST", "n": 14, "fav": 5, "parc": 0, "desf": 9, "processos": 14, "pfav": 0.357, "pparc": 0.0, "pdesf": 0.643, "frag": 0.643, "tipo": "TST", "TRT": "TST"}, {"orgao": "SETR2 · TST", "n": 8, "fav": 3, "parc": 0, "desf": 5, "processos": 8, "pfav": 0.375, "pparc": 0.0, "pdesf": 0.625, "frag": 0.625, "tipo": "TST", "TRT": "TST"}, {"orgao": "3ª Turma · TST", "n": 50, "fav": 15, "parc": 8, "desf": 27, "processos": 44, "pfav": 0.3, "pparc": 0.16, "pdesf": 0.54, "frag": 0.62, "tipo": "TST", "TRT": "TST"}, {"orgao": "Secretaria de Processamento de Recursos Extraordinários · TST", "n": 9, "fav": 3, "parc": 1, "desf": 5, "processos": 9, "pfav": 0.333, "pparc": 0.111, "pdesf": 0.556, "frag": 0.611, "tipo": "TST", "TRT": "TST"}, {"orgao": "8ª Turma · TST", "n": 69, "fav": 26, "parc": 4, "desf": 39, "processos": 58, "pfav": 0.377, "pparc": 0.058, "pdesf": 0.565, "frag": 0.594, "tipo": "TST", "TRT": "TST"}, {"orgao": "7ª Turma · TST", "n": 42, "fav": 18, "parc": 0, "desf": 24, "processos": 40, "pfav": 0.429, "pparc": 0.0, "pdesf": 0.571, "frag": 0.571, "tipo": "TST", "TRT": "TST"}, {"orgao": "2ª Turma · TST", "n": 19, "fav": 9, "parc": 0, "desf": 10, "processos": 18, "pfav": 0.474, "pparc": 0.0, "pdesf": 0.526, "frag": 0.526, "tipo": "TST", "TRT": "TST"}, {"orgao": "6ª Turma · TST", "n": 48, "fav": 24, "parc": 2, "desf": 22, "processos": 46, "pfav": 0.5, "pparc": 0.042, "pdesf": 0.458, "frag": 0.479, "tipo": "TST", "TRT": "TST"}], "recursos": [{"id": "trt-empresa", "instancia": "TRT", "recorrente": "Recurso da empresa", "rotulo": "TRT · recurso da empresa", "n": 129, "fav": 29, "parc": 27, "desf": 73, "pfav": 0.2248, "pparc": 0.2093, "pdesf": 0.5659, "frag": 0.6705, "pexito": 0.4341}, {"id": "trt-trabalhador", "instancia": "TRT", "recorrente": "Recurso do trabalhador", "rotulo": "TRT · recurso do trabalhador", "n": 144, "fav": 65, "parc": 48, "desf": 31, "pfav": 0.4514, "pparc": 0.3333, "pdesf": 0.2153, "frag": 0.3819, "pexito": 0.4514}, {"id": "admissibilidade-empresa", "instancia": "Admissibilidade", "recorrente": "Recurso da empresa", "rotulo": "Admissibilidade · recurso da empresa", "n": 154, "fav": 5, "parc": 18, "desf": 131, "pfav": 0.0325, "pparc": 0.1169, "pdesf": 0.8506, "frag": 0.9091, "pexito": 0.1494}, {"id": "admissibilidade-trabalhador", "instancia": "Admissibilidade", "recorrente": "Recurso do trabalhador", "rotulo": "Admissibilidade · recurso do trabalhador", "n": 135, "fav": 124, "parc": 7, "desf": 4, "pfav": 0.9185, "pparc": 0.0519, "pdesf": 0.0296, "frag": 0.0556, "pexito": 0.9185}, {"id": "tst-empresa", "instancia": "TST", "recorrente": "Recurso da empresa", "rotulo": "TST · recurso da empresa", "n": 338, "fav": 47, "parc": 10, "desf": 281, "pfav": 0.1391, "pparc": 0.0296, "pdesf": 0.8314, "frag": 0.8462, "pexito": 0.1686}, {"id": "tst-trabalhador", "instancia": "TST", "recorrente": "Recurso do trabalhador", "rotulo": "TST · recurso do trabalhador", "n": 119, "fav": 103, "parc": 11, "desf": 5, "pfav": 0.8655, "pparc": 0.0924, "pdesf": 0.042, "frag": 0.0882, "pexito": 0.8655}], "resp": [{"id": "direta", "responsabilidade": "Reclamada principal", "Responsabilidade": "Direta (empresa é a reclamada principal)", "n": 427, "fav": 140, "parc": 170, "desf": 117, "processos": 321, "pfav": 0.328, "pparc": 0.398, "pdesf": 0.274, "frag": 0.473}, {"id": "tomadora", "responsabilidade": "Tomadora de serviço", "Responsabilidade": "Subsidiária/solidária (tomadora de serviço)", "n": 231, "fav": 86, "parc": 127, "desf": 18, "processos": 199, "pfav": 0.372, "pparc": 0.55, "pdesf": 0.078, "frag": 0.353}], "tema": [{"tema": "Terceirização / responsabilidade subsidiária", "n": 172, "fav": 59, "parc": 92, "desf": 21, "processos": 138, "pfav": 0.343, "pparc": 0.535, "pdesf": 0.122, "frag": 0.39}, {"tema": "Jornada (horas extras, intervalos, sobreaviso)", "n": 130, "fav": 35, "parc": 64, "desf": 31, "processos": 91, "pfav": 0.269, "pparc": 0.492, "pdesf": 0.238, "frag": 0.485}, {"tema": "Danos morais / materiais", "n": 75, "fav": 18, "parc": 37, "desf": 20, "processos": 58, "pfav": 0.24, "pparc": 0.493, "pdesf": 0.267, "frag": 0.513}, {"tema": "Salário in natura / auxílio-alimentação", "n": 60, "fav": 24, "parc": 16, "desf": 20, "processos": 43, "pfav": 0.4, "pparc": 0.267, "pdesf": 0.333, "frag": 0.467}, {"tema": "PLR", "n": 54, "fav": 22, "parc": 17, "desf": 15, "processos": 39, "pfav": 0.407, "pparc": 0.315, "pdesf": 0.278, "frag": 0.435}, {"tema": "Diferenças salariais / enquadramento / função", "n": 41, "fav": 12, "parc": 23, "desf": 6, "processos": 33, "pfav": 0.293, "pparc": 0.561, "pdesf": 0.146, "frag": 0.427}, {"tema": "Previdência complementar (FACHESF)", "n": 31, "fav": 5, "parc": 17, "desf": 9, "processos": 26, "pfav": 0.161, "pparc": 0.548, "pdesf": 0.29, "frag": 0.565}, {"tema": "Outros", "n": 18, "fav": 9, "parc": 6, "desf": 3, "processos": 14, "pfav": 0.5, "pparc": 0.333, "pdesf": 0.167, "frag": 0.333}, {"tema": "PDV / PDC / quitação", "n": 16, "fav": 9, "parc": 3, "desf": 4, "processos": 10, "pfav": 0.562, "pparc": 0.188, "pdesf": 0.25, "frag": 0.344}, {"tema": "Reintegração / dispensa", "n": 13, "fav": 7, "parc": 6, "desf": 0, "processos": 12, "pfav": 0.538, "pparc": 0.462, "pdesf": 0.0, "frag": 0.231}, {"tema": "Verbas rescisórias / FGTS", "n": 9, "fav": 3, "parc": 2, "desf": 4, "processos": 7, "pfav": 0.333, "pparc": 0.222, "pdesf": 0.444, "frag": 0.556}, {"tema": "Adicionais (periculosidade / insalubridade)", "n": 2, "fav": 1, "parc": 1, "desf": 0, "processos": 2, "pfav": 0.5, "pparc": 0.5, "pdesf": 0.0, "frag": 0.25}], "trt": [{"TRT": "TRT5", "UF": "BA", "Região": "Nordeste", "n": 255, "fav": 78, "parc": 99, "desf": 78, "processos": 187, "n_s": 68, "frag_s": 0.441, "pfav_s": 0.25, "n_a": 187, "frag_a": 0.521, "pfav_a": 0.326, "pfav": 0.306, "pparc": 0.388, "pdesf": 0.306, "frag": 0.5, "regiao": "Nordeste"}, {"TRT": "TRT6", "UF": "PE", "Região": "Nordeste", "n": 202, "fav": 63, "parc": 103, "desf": 36, "processos": 148, "n_s": 123, "frag_s": 0.374, "pfav_s": 0.325, "n_a": 79, "frag_a": 0.525, "pfav_a": 0.291, "pfav": 0.312, "pparc": 0.51, "pdesf": 0.178, "frag": 0.433, "regiao": "Nordeste"}, {"TRT": "TRT22", "UF": "PI", "Região": "Nordeste", "n": 58, "fav": 27, "parc": 28, "desf": 3, "processos": 54, "n_s": 58, "frag_s": 0.293, "pfav_s": 0.466, "n_a": 0, "frag_a": null, "pfav_a": null, "pfav": 0.466, "pparc": 0.483, "pdesf": 0.052, "frag": 0.293, "regiao": "Nordeste"}, {"TRT": "TRT16", "UF": "MA", "Região": "Nordeste", "n": 40, "fav": 27, "parc": 10, "desf": 3, "processos": 29, "n_s": 21, "frag_s": 0.119, "pfav_s": 0.762, "n_a": 19, "frag_a": 0.289, "pfav_a": 0.579, "pfav": 0.675, "pparc": 0.25, "pdesf": 0.075, "frag": 0.2, "regiao": "Nordeste"}, {"TRT": "TRT7", "UF": "CE", "Região": "Nordeste", "n": 32, "fav": 7, "parc": 19, "desf": 6, "processos": 29, "n_s": 18, "frag_s": 0.5, "pfav_s": 0.111, "n_a": 14, "frag_a": 0.464, "pfav_a": 0.357, "pfav": 0.219, "pparc": 0.594, "pdesf": 0.188, "frag": 0.484, "regiao": "Nordeste"}, {"TRT": "TRT21", "UF": "RN", "Região": "Nordeste", "n": 25, "fav": 11, "parc": 9, "desf": 5, "processos": 24, "n_s": 7, "frag_s": 0.071, "pfav_s": 0.857, "n_a": 18, "frag_a": 0.5, "pfav_a": 0.278, "pfav": 0.44, "pparc": 0.36, "pdesf": 0.2, "frag": 0.38, "regiao": "Nordeste"}, {"TRT": "TRT13", "UF": "PB", "Região": "Nordeste", "n": 19, "fav": 6, "parc": 12, "desf": 1, "processos": 17, "n_s": 14, "frag_s": 0.321, "pfav_s": 0.357, "n_a": 5, "frag_a": 0.5, "pfav_a": 0.2, "pfav": 0.316, "pparc": 0.632, "pdesf": 0.053, "frag": 0.368, "regiao": "Nordeste"}, {"TRT": "TRT19", "UF": "AL", "Região": "Nordeste", "n": 17, "fav": 4, "parc": 10, "desf": 3, "processos": 12, "n_s": 9, "frag_s": 0.389, "pfav_s": 0.333, "n_a": 8, "frag_a": 0.562, "pfav_a": 0.125, "pfav": 0.235, "pparc": 0.588, "pdesf": 0.176, "frag": 0.471, "regiao": "Nordeste"}, {"TRT": "TRT20", "UF": "SE", "Região": "Nordeste", "n": 10, "fav": 3, "parc": 7, "desf": 0, "processos": 8, "n_s": 6, "frag_s": 0.5, "pfav_s": 0.0, "n_a": 4, "frag_a": 0.125, "pfav_a": 0.75, "pfav": 0.3, "pparc": 0.7, "pdesf": 0.0, "frag": 0.35, "regiao": "Nordeste"}]};
+  const calcs = {}, draws = {};
+  const api = {
+    data(id) {
+      if (id in DADOS) return { status: 'ok', data: DADOS[id] };
+      if (id in calcs) {
+        if (!calcs[id].v) calcs[id].v = calcs[id].fn(...calcs[id].inputs.map((i) => api.data(i).data));
+        return { status: 'ok', data: calcs[id].v };
+      }
+      return { status: 'missing', data: [] };
+    },
+    calc(id, o) { calcs[id] = { inputs: o.inputs, fn: o.fn }; },
+    draw(name, fn) { draws[name] = fn; },
+    onData(fn) { fn(); },
+    colors: [],
+  };
+  api._run = () => {
+    for (const [name, fn] of Object.entries(draws))
+      document.querySelectorAll(`[data-draw="${name}"]`).forEach((el) => { try { fn(el); } catch (e) { console.error(name, e); } });
+  };
+  return api;
+})();
+</script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+  .jx { display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); font-variant-numeric: tabular-nums; }
+  .jx-head { display: grid; gap: var(--cds-gap-sm); max-width: 64rem; }
+  .jx-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .jx-head p { margin: 0; color: var(--color-fg-muted); line-height: 1.5; }
+  .jx-head .jx-take { color: var(--color-fg); font-size: var(--cds-font-size-heading); line-height: 1.45; }
+  .jx b { font-weight: 600; }
+  .jx-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: var(--cds-gap-md); }
+  .jx-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); align-content: start; }
+  .jx-tile span { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .jx-tile strong { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.1; }
+  .jx-tile.ok strong { color: var(--color-ok); }
+  .jx-tile.warn strong { color: var(--color-warn); }
+  .jx-tile.bad strong { color: var(--color-bad); }
+  .jx-sec { display: grid; gap: var(--cds-gap-md); }
+  .jx-sec > h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+  .jx-sec > p { margin: 0; color: var(--color-fg-muted); max-width: 64rem; line-height: 1.5; }
+  .jx-find { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: var(--cds-gap-md); }
+  .jx-find article { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); align-content: start; }
+  .jx-find h3 { margin: 0; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+  .jx-find p { margin: 0; line-height: 1.5; color: var(--color-fg-muted); }
+  .jx-find p b { color: var(--color-fg); }
+  .jx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: var(--cds-gap-md); }
+  .jx-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; }
+  .jx-card h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+  .jx-card .jx-note { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.45; }
+  .jx-chart { position: relative; }
+  .jx-chart svg { display: block; overflow: visible; }
+  .jx-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .jx-legend i { display: inline-block; width: .7rem; height: .7rem; border-radius: 2px; margin-right: .35rem; vertical-align: -1px; }
+  .jx-legend i.c { border-radius: 50%; border: 1.5px solid var(--color-fg); width: .55rem; height: .55rem; }
+  .jx-legend i.d { transform: rotate(45deg) scale(.8); background: var(--color-fg); }
+  .jx-sw-fav { background: var(--color-ok); } .jx-sw-parc { background: var(--color-warn); } .jx-sw-desf { background: var(--cds-chart-status-critical); }
+  .jx-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius);
+            box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); line-height: 1.5; white-space: nowrap; z-index: 2; }
+  .jx-tip .t { color: var(--cds-text-secondary); }
+  .jx-tablebox { max-height: 30rem; overflow: auto; }
+  .jx table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); }
+  .jx th { position: sticky; top: 0; background: var(--color-panel); text-align: right; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted);
+           padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+  .jx th:first-child, .jx td:first-child, .jx th.l, .jx td.l { text-align: left; }
+  .jx td { text-align: right; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+  .jx td.wrap { white-space: normal; min-width: 11rem; }
+  .jx tr.muted td { color: var(--color-fg-muted); }
+  .jx .pill { display: inline-block; min-width: 3.6rem; text-align: center; border-radius: 999px; padding: 0 .5rem; font-weight: 600; border: 1px solid currentColor; }
+  .jx .pill.ok { color: var(--color-ok); } .jx .pill.warn { color: var(--color-warn); } .jx .pill.bad { color: var(--color-bad); }
+  .jx-method { columns: 2 22rem; column-gap: var(--cds-gap-xl); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.55; }
+  .jx-method p { margin: 0 0 var(--cds-gap-sm); break-inside: avoid; }
+  .jx [data-dash-source-state=empty] { color: transparent; }
+  .jx [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+  @media (max-width: 40rem) { .jx .hide-sm { display: none; } }
+</style>
+
+<div class="jx">
+  <header class="jx-head" id="topo">
+    <h1>Jurimetria trabalhista Axia</h1>
+    <p>Decisões publicadas no Diário de Justiça Eletrônico Nacional de <b data-draw="v" data-source="kpi" data-field="periodo_ini" data-row="0" data-fmt="date">—</b> a <b data-draw="v" data-source="kpi" data-field="periodo_fim" data-row="0" data-fmt="date">—</b>, em todos os processos da carteira Axia (ex-Eletrobras, ex-CHESF, ex-Eletronorte e ex-Eletrosul) conduzidos pelo escritório.</p>
+    <p class="jx-take">Nas <b data-draw="v" data-source="kpi" data-field="n" data-row="0" data-fmt="int">—</b> sentenças e acórdãos de mérito do período, a empresa venceu <b data-draw="v" data-source="kpi" data-field="pfav" data-row="0" data-fmt="pct">—</b>, perdeu em parte <b data-draw="v" data-source="kpi" data-field="pparc" data-row="0" data-fmt="pct">—</b> e perdeu integralmente <b data-draw="v" data-source="kpi" data-field="pdesf" data-row="0" data-fmt="pct">—</b>. O tribunal mais desfavorável foi o <b data-draw="v" data-source="trt_destaque" data-field="TRT" data-where="posicao=pior">—</b> (índice <b data-draw="v" data-source="trt_destaque" data-field="frag" data-where="posicao=pior" data-fmt="pct">—</b>); o mais favorável, o <b data-draw="v" data-source="trt_destaque" data-field="TRT" data-where="posicao=melhor">—</b> (<b data-draw="v" data-source="trt_destaque" data-field="frag" data-where="posicao=melhor" data-fmt="pct">—</b>).</p>
+  </header>
+
+  <div class="jx-tiles">
+    <div class="jx-tile"><span>Sentenças e acórdãos de mérito</span><strong data-draw="v" data-source="kpi" data-field="n" data-row="0" data-fmt="int">—</strong><span><b data-draw="v" data-source="kpi" data-field="processos" data-row="0" data-fmt="int">—</b> processos</span></div>
+    <div class="jx-tile ok"><span>Favoráveis à empresa</span><strong data-draw="v" data-source="kpi" data-field="pfav" data-row="0" data-fmt="pct">—</strong><span><b data-draw="v" data-source="kpi" data-field="fav" data-row="0" data-fmt="int">—</b> decisões</span></div>
+    <div class="jx-tile warn"><span>Parcialmente desfavoráveis</span><strong data-draw="v" data-source="kpi" data-field="pparc" data-row="0" data-fmt="pct">—</strong><span><b data-draw="v" data-source="kpi" data-field="parc" data-row="0" data-fmt="int">—</b> decisões</span></div>
+    <div class="jx-tile bad"><span>Desfavoráveis</span><strong data-draw="v" data-source="kpi" data-field="pdesf" data-row="0" data-fmt="pct">—</strong><span><b data-draw="v" data-source="kpi" data-field="desf" data-row="0" data-fmt="int">—</b> decisões</span></div>
+    <div class="jx-tile"><span>Índice de fragilidade</span><strong data-draw="v" data-source="kpi" data-field="frag" data-row="0" data-fmt="pct">—</strong><span>derrotas + metade das parciais</span></div>
+    <div class="jx-tile"><span>Decisões em todas as fases</span><strong data-draw="v" data-source="kpi" data-field="decisoes_todas" data-row="0" data-fmt="int">—</strong><span>inclui TST e execução</span></div>
+  </div>
+
+  <section class="jx-sec" id="leitura">
+    <h2>Leitura gerencial</h2>
+    <div class="jx-find">
+      <article>
+        <h3>No 1º grau, a derrota total é rara</h3>
+        <p>Só <b data-draw="v" data-source="instancia" data-field="pdesf" data-where="id=sent" data-fmt="pct">—</b> das sentenças condenam em tudo, mas <b data-draw="v" data-source="instancia" data-field="pparc" data-where="id=sent" data-fmt="pct">—</b> são procedentes em parte. O risco está no valor dos pedidos deferidos, não na tese inteira.</p>
+      </article>
+      <article>
+        <h3>O TRT é onde a carteira se decide</h3>
+        <p>O índice de fragilidade sobe de <b data-draw="v" data-source="instancia" data-field="frag" data-where="id=sent" data-fmt="pct">—</b> na sentença para <b data-draw="v" data-source="instancia" data-field="frag" data-where="id=acord" data-fmt="pct">—</b> no acórdão. Quando a empresa recorre ao TRT, reverte a sentença no todo ou em parte em <b data-draw="v" data-source="recursos" data-field="pexito" data-where="id=trt-empresa" data-fmt="pct">—</b> dos casos.</p>
+      </article>
+      <article>
+        <h3>No TST, quase nada muda</h3>
+        <p><b data-draw="v" data-source="recursos" data-field="pdesf" data-where="id=tst-empresa" data-fmt="pct">—</b> dos recursos da empresa no TST são negados, e <b data-draw="v" data-source="recursos" data-field="pfav" data-where="id=tst-trabalhador" data-fmt="pct">—</b> dos recursos dos trabalhadores também. O resultado do TRT tende a ser o final, o que pesa na decisão de recorrer ou de fazer acordo.</p>
+      </article>
+      <article>
+        <h3>Execução é o ponto mais fraco</h3>
+        <p>Nas sentenças de embargos à execução e nos agravos de petição, <b data-draw="v" data-source="instancia" data-field="pdesf" data-where="id=exec" data-fmt="pct">—</b> das decisões são contra a empresa. Discutir os cálculos depois da fase de conhecimento tem retorno baixo.</p>
+      </article>
+      <article>
+        <h3>Como tomadora, a empresa se defende melhor</h3>
+        <p>Nos casos de terceirizados, o índice é <b data-draw="v" data-source="resp" data-field="frag" data-where="id=tomadora" data-fmt="pct">—</b>, contra <b data-draw="v" data-source="resp" data-field="frag" data-where="id=direta" data-fmt="pct">—</b> quando a empresa é a reclamada principal (ex-empregados), em que a derrota integral chega a <b data-draw="v" data-source="resp" data-field="pdesf" data-where="id=direta" data-fmt="pct">—</b>.</p>
+      </article>
+      <article>
+        <h3>A ex-CHESF concentra o risco</h3>
+        <p>A Axia Nordeste responde por <b data-draw="v" data-source="empresa" data-field="n" data-where="empresa=Axia Nordeste (ex-CHESF)" data-fmt="int">—</b> das decisões de mérito, com índice de <b data-draw="v" data-source="empresa" data-field="frag" data-where="empresa=Axia Nordeste (ex-CHESF)" data-fmt="pct">—</b>. A carteira inteira está nos TRTs do Nordeste e do Maranhão.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="jx-sec" id="instancias">
+    <h2>Resultado por tipo de decisão</h2>
+    <p>A sentença mostra a primeira resposta do Judiciário; o acórdão do TRT, o resultado do recurso ordinário; a admissibilidade e o TST, a tentativa de levar o caso à instância superior; a execução reúne embargos à execução e agravos de petição.</p>
+    <div class="jx-grid">
+      <div class="jx-card">
+        <h3>Placar por instância</h3>
+        <div class="jx-legend"><span><i class="jx-sw-fav"></i>Favorável</span><span><i class="jx-sw-parc"></i>Parcial</span><span><i class="jx-sw-desf"></i>Desfavorável</span></div>
+        <div class="jx-chart" data-draw="stack" data-source="instancia" data-label="grupo" data-sort="ordem" style="min-height: 12.5rem"></div>
+        <p class="jx-note">Número à direita: decisões com resultado. Ficaram de fora <b data-draw="v" data-source="kpi" data-field="sem_teor" data-row="0" data-fmt="int">—</b> decisões cujo teor não sai no diário (só o aviso de que estão no PJe).</p>
+      </div>
+      <div class="jx-card">
+        <h3>Quem recorreu e o que aconteceu</h3>
+        <div class="jx-legend"><span><i class="jx-sw-fav"></i>Favorável à empresa</span><span><i class="jx-sw-parc"></i>Parcial</span><span><i class="jx-sw-desf"></i>Desfavorável</span></div>
+        <div class="jx-chart" data-draw="stack" data-source="recursos" data-label="rotulo" style="min-height: 15rem"></div>
+        <p class="jx-note">Fase de conhecimento. Recurso da empresa provido conta como favorável; recurso do trabalhador negado também.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="jx-sec" id="trts">
+    <h2>Fragilidade por tribunal regional</h2>
+    <p>Índice de fragilidade = (decisões desfavoráveis + metade das parciais) ÷ decisões com resultado, somando sentenças e acórdãos de mérito. Quanto maior, mais aquele tribunal decide contra a empresa. TRTs com menos de <b data-draw="minimo">—</b> decisões aparecem só na tabela.</p>
+    <div class="jx-grid">
+      <div class="jx-card">
+        <h3>Índice por TRT</h3>
+        <div class="jx-legend"><span><i class="c"></i>1º grau</span><span><i class="d"></i>2º grau</span><span>barra: índice geral</span></div>
+        <div class="jx-chart" data-draw="trt-bars" data-source="trt" style="min-height: 14rem"></div>
+        <p class="jx-note">O TRT22 (PI) só publica o aviso dos acórdãos, por isso não tem índice de 2º grau.</p>
+      </div>
+      <div class="jx-card">
+        <h3>Por empresa do grupo</h3>
+        <div class="jx-legend"><span><i class="jx-sw-fav"></i>Favorável</span><span><i class="jx-sw-parc"></i>Parcial</span><span><i class="jx-sw-desf"></i>Desfavorável</span></div>
+        <div class="jx-chart" data-draw="stack" data-source="empresa" data-label="empresa" data-sort="-n" style="min-height: 7.5rem"></div>
+        <h3>Reclamada principal ou tomadora</h3>
+        <p class="jx-note">Reclamada principal: ex-empregados. Tomadora: terceirizados, com pedido de responsabilidade subsidiária ou solidária.</p>
+        <div class="jx-chart" data-draw="stack" data-source="resp" data-label="responsabilidade" style="min-height: 5rem"></div>
+      </div>
+    </div>
+    <div class="jx-card">
+      <h3>Detalhe por TRT</h3>
+      <div class="jx-tablebox">
+        <table data-source="trt" data-row-key="TRT">
+          <thead><tr>
+            <th data-field="TRT">TRT</th><th data-field="UF" class="l">UF</th>
+            <th data-field="n">Decisões</th><th data-field="pfav">Favorável</th><th data-field="pparc" class="hide-sm">Parcial</th><th data-field="pdesf">Desfavorável</th>
+            <th data-field="frag_s" class="hide-sm">Índice 1º grau</th><th data-field="frag_a" class="hide-sm">Índice 2º grau</th><th data-field="frag">Índice geral</th>
+          </tr></thead>
+          <tbody data-draw="trt-rows" data-source="trt"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="jx-sec" id="temas">
+    <h2>Temas mais sensíveis</h2>
+    <p>Tema principal de cada processo = pedido de maior valor atualizado na base de contingências. Ordenado do mais para o menos desfavorável; temas com menos de <b data-draw="minimo-tema">—</b> decisões ficam de fora.</p>
+    <div class="jx-card">
+      <div class="jx-legend"><span><i class="jx-sw-fav"></i>Favorável</span><span><i class="jx-sw-parc"></i>Parcial</span><span><i class="jx-sw-desf"></i>Desfavorável</span></div>
+      <div class="jx-chart" data-draw="stack" data-source="tema" data-label="tema" data-sort="-frag" data-min="10" style="min-height: 17rem"></div>
+    </div>
+  </section>
+
+  <section class="jx-sec" id="orgaos">
+    <h2>Varas e turmas mais desfavoráveis</h2>
+    <p>Órgãos com pelo menos <b data-draw="minimo-orgao">—</b> decisões com resultado no período, do mais para o menos desfavorável. Inclui sentenças, acórdãos e decisões do TST.</p>
+    <div class="jx-card">
+      <div class="jx-tablebox">
+        <table data-source="orgaos" data-row-key="orgao">
+          <thead><tr>
+            <th data-field="orgao">Órgão julgador</th><th data-field="tipo" class="l hide-sm">Instância</th>
+            <th data-field="n">Decisões</th><th data-field="pfav" class="hide-sm">Favorável</th><th data-field="pdesf">Desfavorável</th><th data-field="frag">Índice</th>
+          </tr></thead>
+          <tbody data-draw="orgao-rows" data-source="orgaos"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="jx-sec" id="evolucao">
+    <h2>Mês a mês</h2>
+    <p>Sentenças e acórdãos de mérito por mês de publicação.</p>
+    <div class="jx-card">
+      <div class="jx-legend"><span><i class="jx-sw-fav"></i>Favorável</span><span><i class="jx-sw-parc"></i>Parcial</span><span><i class="jx-sw-desf"></i>Desfavorável</span></div>
+      <div class="jx-chart" data-draw="mensal" data-source="mensal" style="min-height: 14rem"></div>
+    </div>
+  </section>
+
+  <section class="jx-sec" id="metodo">
+    <h2>Como os números foram obtidos</h2>
+    <div class="jx-method">
+      <p>Fonte: Comunica PJe (Diário de Justiça Eletrônico Nacional, CNJ), consultado processo a processo para os <b data-draw="v" data-source="kpi" data-field="processos_base" data-row="0" data-fmt="int">—</b> processos da base Axia, individuais e coletivos, em andamento e encerrados; <b data-draw="v" data-source="kpi" data-field="processos_pub" data-row="0" data-fmt="int">—</b> tiveram alguma publicação no período.</p>
+      <p>Entram sentenças, acórdãos dos TRTs, decisões de admissibilidade de recurso de revista e decisões do TST. Despachos de andamento, embargos de declaração e decisões de cálculo na execução ficam fora do placar. A mesma decisão publicada para várias partes conta uma vez.</p>
+      <p>Sentença: improcedência, extinção ou exclusão da empresa conta como favorável; procedência parcial, como parcial; procedência total, como desfavorável. Quando a empresa do grupo é só tomadora de serviços, a decisão só conta contra ela se houver condenação subsidiária ou solidária.</p>
+      <p>Recursos: recurso da empresa provido é favorável e negado é desfavorável; recurso do trabalhador provido é desfavorável e negado é favorável; provimento parcial conta como parcial.</p>
+      <p>A classificação é automática, pela leitura do dispositivo publicado, e foi conferida por amostragem, com a grande maioria das leituras correta. Acórdãos cujo teor não sai no diário, frequentes no TRT22, TRT13 e TRT7, não puderam ser lidos. O placar conta decisões, não valores: uma derrota parcial pode envolver um pedido pequeno.</p>
+      <p>Os cumprimentos individuais da ação coletiva do sindicato no TRT22 (acordo homologado no processo principal) foram tratados como execução e não entram no placar de acordos.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+  // Amostra mínima para um TRT, um tema ou um órgão entrar nos gráficos e destaques.
+  window.JX = { MIN_TRT: 20, MIN_TEMA: 10, MIN_ORGAO: 5 };
+  JX.loc = d3.formatLocale({ decimal: ',', thousands: '.', grouping: [3], currency: ['R$ ', ''], percent: '%' });
+  JX.int = JX.loc.format(',d');
+  JX.pct = JX.loc.format('.1%');
+  JX.pct0 = JX.loc.format('.0%');
+  JX.date = (s) => s ? s.slice(8, 10) + '/' + s.slice(5, 7) + '/' + s.slice(0, 4) : '—';
+  JX.fmt = (v, f) => v == null || v === '' ? '—' : f === 'pct' ? JX.pct(v) : f === 'int' ? JX.int(v) : f === 'date' ? JX.date(v) : String(v);
+  JX.sev = (f) => f >= 0.5 ? 'bad' : f >= 0.35 ? 'warn' : 'ok';
+  JX.colors = (el) => {
+    const s = getComputedStyle(el);
+    const g = (n) => s.getPropertyValue(n).trim();
+    return { fav: g('--color-ok'), parc: g('--color-warn'), desf: g('--cds-chart-status-critical') || g('--color-bad'),
+             grid: g('--cds-chart-grid'), muted: g('--color-fg-muted'), fg: g('--color-fg'), bg: g('--color-bg') };
+  };
+  JX.where = (rows, el) => {
+    if (el.dataset.row != null) return rows[Number(el.dataset.row)];
+    const conds = (el.dataset.where || '').split('&').filter(Boolean).map((p) => p.split('=').map(decodeURIComponent));
+    return rows.find((r) => conds.every(([k, v]) => String(r[k]) === v));
+  };
+  JX.tip = (box) => {
+    let t = box.querySelector(':scope > .jx-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'jx-tip'; t.hidden = true; box.appendChild(t); }
+    return {
+      show(ev, title, lines) {
+        t.replaceChildren();
+        const h = document.createElement('div'); h.className = 't'; h.textContent = title; t.appendChild(h);
+        for (const l of lines) { const d = document.createElement('div'); d.textContent = l; t.appendChild(d); }
+        t.hidden = false;
+        const r = box.getBoundingClientRect();
+        let x = ev.clientX - r.left + 12, y = ev.clientY - r.top + 12;
+        if (x + t.offsetWidth > r.width) x = Math.max(0, ev.clientX - r.left - t.offsetWidth - 12);
+        t.style.left = x + 'px'; t.style.top = y + 'px';
+      },
+      hide() { t.hidden = true; },
+    };
+  };
+  JX.textW = (svg, s) => { const t = svg.append('text').attr('font-size', 'var(--cds-font-size-caption)').text(s); const w = t.node().getComputedTextLength(); t.remove(); return w; };
+</script>
+
+<script>
+  dash.calc('trt_destaque', {
+    inputs: ['trt'],
+    title: 'TRT mais e menos desfavorável',
+    description: 'Entre os TRTs com pelo menos 20 decisões de mérito, o de maior e o de menor índice de fragilidade.',
+    fn: (trt) => {
+      const ok = trt.filter((r) => Number(r.n) >= 20).sort((a, b) => Number(b.frag) - Number(a.frag));
+      if (!ok.length) return [];
+      const p = ok[0], m = ok[ok.length - 1];
+      return [{ posicao: 'pior', TRT: p.TRT, frag: Number(p.frag) }, { posicao: 'melhor', TRT: m.TRT, frag: Number(m.frag) }];
+    },
+  });
+
+  // Um valor de um dataset: data-source + data-field + data-row/data-where, formatado por data-fmt.
+  dash.draw('v', (el) => {
+    const d = dash.data(el.dataset.source);
+    const r = d.status === 'ok' ? JX.where(d.data, el) : null;
+    el.textContent = r ? JX.fmt(r[el.dataset.field], el.dataset.fmt) : '—';
+  });
+  dash.draw('minimo', (el) => { el.textContent = String(JX.MIN_TRT); });
+  dash.draw('minimo-tema', (el) => { el.textContent = String(JX.MIN_TEMA); });
+  dash.draw('minimo-orgao', (el) => { el.textContent = String(JX.MIN_ORGAO); });
+
+  // Barras 100% empilhadas (favorável / parcial / desfavorável), uma linha por categoria.
+  dash.draw('stack', (el) => {
+    el.replaceChildren();
+    const d = dash.data(el.dataset.source);
+    if (d.status !== 'ok') return;
+    let rows = d.data.filter((r) => Number(r.n) >= Number(el.dataset.min || 1));
+    const s = el.dataset.sort;
+    if (s) rows = rows.slice().sort((a, b) => s.startsWith('-') ? b[s.slice(1)] - a[s.slice(1)] : a[s] - b[s]);
+    if (!rows.length) return;
+    const key = el.dataset.label, c = JX.colors(el);
+    const W = Math.max(280, el.clientWidth), rowH = 28, gap = 8;
+    const svg = d3.select(el).append('svg').attr('width', '100%');
+    const labW = Math.min(W * 0.45, d3.max(rows, (r) => JX.textW(svg, r[key])) + 10);
+    const nW = Math.max(...rows.map((r) => JX.textW(svg, JX.int(r.n)))) + 10;
+    const x = d3.scaleLinear([0, 1], [labW, W - nW]);
+    const H = rows.length * (rowH + gap) - gap;
+    svg.attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const tip = JX.tip(el);
+    const g = svg.selectAll('g.r').data(rows).join('g').attr('class', 'r').attr('transform', (_, i) => `translate(0,${i * (rowH + gap)})`);
+    g.append('text').attr('x', 0).attr('y', rowH / 2).attr('dy', '0.35em').attr('fill', c.fg).attr('font-size', 'var(--cds-font-size-caption)')
+      .text((r) => { const t = String(r[key]); return t.length > 46 && W < 520 ? t.slice(0, 44) + '…' : t; });
+    const parts = [['pfav', c.fav], ['pparc', c.parc], ['pdesf', c.desf]];
+    g.each(function (r) {
+      let acc = 0;
+      for (const [f, col] of parts) {
+        const v = Number(r[f]) || 0;
+        d3.select(this).append('rect').attr('x', x(acc)).attr('y', 3).attr('height', rowH - 6).attr('width', Math.max(0, x(acc + v) - x(acc))).attr('fill', col);
+        if (v >= 0.1 && x(acc + v) - x(acc) > 30) d3.select(this).append('text').attr('x', x(acc) + 5).attr('y', rowH / 2).attr('dy', '0.35em')
+          .attr('font-size', 'var(--cds-font-size-caption)').attr('fill', c.bg).attr('font-weight', 600).attr('pointer-events', 'none').text(JX.pct0(v));
+        acc += v;
+      }
+    });
+    g.append('text').attr('x', W).attr('y', rowH / 2).attr('dy', '0.35em').attr('text-anchor', 'end').attr('fill', c.muted).attr('font-size', 'var(--cds-font-size-caption)').text((r) => JX.int(r.n));
+    g.append('rect').attr('x', 0).attr('width', W).attr('height', rowH).attr('fill', 'transparent')
+      .on('mousemove', (ev, r) => tip.show(ev, String(r[key]), [`Favorável ${JX.pct(r.pfav)} (${JX.int(r.fav)})`, `Parcial ${JX.pct(r.pparc)} (${JX.int(r.parc)})`,
+        `Desfavorável ${JX.pct(r.pdesf)} (${JX.int(r.desf)})`, `Índice de fragilidade ${JX.pct(r.frag)}`]))
+      .on('mouseleave', () => tip.hide());
+  });
+
+  // Índice por TRT: barra do índice geral + marcas de 1º e 2º grau.
+  dash.draw('trt-bars', (el) => {
+    el.replaceChildren();
+    const d = dash.data('trt');
+    if (d.status !== 'ok') return;
+    const rows = d.data.filter((r) => Number(r.n) >= JX.MIN_TRT).sort((a, b) => b.frag - a.frag);
+    if (!rows.length) return;
+    const c = JX.colors(el);
+    const W = Math.max(280, el.clientWidth), rowH = 30, top = 20;
+    const svg = d3.select(el).append('svg').attr('width', '100%');
+    const labW = d3.max(rows, (r) => JX.textW(svg, `${r.TRT} ${r.UF}`)) + 10;
+    const nW = d3.max(rows, (r) => JX.textW(svg, `${JX.pct0(r.frag)} · ${JX.int(r.n)}`)) + 10;
+    const x = d3.scaleLinear([0, 1], [labW, W - nW]);
+    const H = top + rows.length * rowH;
+    svg.attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const ticks = W < 440 ? [0, 0.5, 1] : [0, 0.25, 0.5, 0.75, 1];
+    svg.append('g').selectAll('line').data(ticks).join('line').attr('x1', x).attr('x2', x).attr('y1', top - 4).attr('y2', H).attr('stroke', c.grid);
+    svg.append('g').selectAll('text').data(ticks).join('text').attr('x', x).attr('y', top - 8).attr('text-anchor', 'middle').attr('fill', c.muted)
+      .attr('font-size', 'var(--cds-font-size-caption)').text(JX.pct0);
+    const tip = JX.tip(el);
+    const g = svg.selectAll('g.r').data(rows).join('g').attr('class', 'r').attr('transform', (_, i) => `translate(0,${top + i * rowH})`);
+    g.append('text').attr('x', 0).attr('y', rowH / 2).attr('dy', '0.35em').attr('fill', c.fg).attr('font-size', 'var(--cds-font-size-caption)').text((r) => `${r.TRT} ${r.UF}`);
+    g.append('rect').attr('x', x(0)).attr('y', 7).attr('height', rowH - 14).attr('rx', 2).attr('width', (r) => Math.max(0, x(r.frag) - x(0)))
+      .attr('fill', (r) => ({ ok: c.fav, warn: c.parc, bad: c.desf })[JX.sev(r.frag)]).attr('fill-opacity', 0.8);
+    g.filter((r) => r.frag_s != null).append('circle').attr('cx', (r) => x(r.frag_s)).attr('cy', rowH / 2).attr('r', 4.5).attr('fill', c.bg).attr('stroke', c.fg).attr('stroke-width', 1.5);
+    g.filter((r) => r.frag_a != null).append('path').attr('d', d3.symbol(d3.symbolDiamond, 48)).attr('transform', (r) => `translate(${x(r.frag_a)},${rowH / 2})`).attr('fill', c.fg);
+    g.append('text').attr('x', W).attr('y', rowH / 2).attr('dy', '0.35em').attr('text-anchor', 'end').attr('fill', c.muted).attr('font-size', 'var(--cds-font-size-caption)')
+      .text((r) => `${JX.pct0(r.frag)} · ${JX.int(r.n)}`);
+    g.append('rect').attr('width', W).attr('height', rowH).attr('fill', 'transparent')
+      .on('mousemove', (ev, r) => tip.show(ev, `${r.TRT} (${r.UF})`, [`Índice geral ${JX.pct(r.frag)} · ${JX.int(r.n)} decisões`,
+        `1º grau ${r.frag_s == null ? '—' : JX.pct(r.frag_s)} · ${JX.int(r.n_s || 0)} sentenças`, `2º grau ${r.frag_a == null ? '—' : JX.pct(r.frag_a)} · ${JX.int(r.n_a || 0)} acórdãos`]))
+      .on('mouseleave', () => tip.hide());
+  });
+
+  const cell = (tr, text, cls) => { const td = document.createElement('td'); td.textContent = text; if (cls) td.className = cls; tr.appendChild(td); };
+  const pill = (tr, v) => { const td = document.createElement('td'); const s = document.createElement('span'); s.className = 'pill ' + JX.sev(v); s.textContent = JX.pct(v); td.appendChild(s); tr.appendChild(td); };
+
+  dash.draw('trt-rows', (tb) => {
+    tb.replaceChildren();
+    const d = dash.data('trt');
+    if (d.status !== 'ok') return;
+    for (const r of d.data.slice().sort((a, b) => b.n - a.n)) {
+      const tr = document.createElement('tr');
+      cell(tr, r.TRT); cell(tr, r.UF, 'l'); cell(tr, JX.int(r.n));
+      cell(tr, JX.pct(r.pfav)); cell(tr, JX.pct(r.pparc), 'hide-sm'); cell(tr, JX.pct(r.pdesf));
+      cell(tr, r.frag_s == null ? '—' : JX.pct(r.frag_s), 'hide-sm'); cell(tr, r.frag_a == null ? '—' : JX.pct(r.frag_a), 'hide-sm');
+      pill(tr, r.frag);
+      if (r.n < JX.MIN_TRT) tr.className = 'muted';
+      tb.appendChild(tr);
+    }
+  });
+
+  dash.draw('orgao-rows', (tb) => {
+    tb.replaceChildren();
+    const d = dash.data('orgaos');
+    if (d.status !== 'ok') return;
+    for (const r of d.data.filter((x) => x.n >= JX.MIN_ORGAO).sort((a, b) => b.frag - a.frag || b.n - a.n)) {
+      const tr = document.createElement('tr');
+      cell(tr, r.orgao, 'wrap'); cell(tr, r.tipo, 'l hide-sm'); cell(tr, JX.int(r.n));
+      cell(tr, JX.pct(r.pfav), 'hide-sm'); cell(tr, JX.pct(r.pdesf)); pill(tr, r.frag);
+      tb.appendChild(tr);
+    }
+  });
+
+  // Mês a mês: barras empilhadas de contagens.
+  dash.draw('mensal', (el) => {
+    el.replaceChildren();
+    const d = dash.data('mensal');
+    if (d.status !== 'ok' || !d.data.length) return;
+    const rows = d.data.slice().sort((a, b) => a.mes.localeCompare(b.mes));
+    const c = JX.colors(el);
+    const W = Math.max(280, el.clientWidth), H = 210, m = { t: 10, r: 4, b: 24, l: 30 };
+    const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const lab = (s) => meses[Number(s.slice(5, 7)) - 1] + '/' + s.slice(2, 4);
+    const x = d3.scaleBand(rows.map((r) => r.mes), [m.l, W - m.r]).padding(0.25);
+    const y = d3.scaleLinear([0, d3.max(rows, (r) => r.n) || 1], [H - m.b, m.t]).nice();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    svg.append('g').selectAll('line').data(y.ticks(4)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', c.grid);
+    svg.append('g').selectAll('text').data(y.ticks(4)).join('text').attr('x', m.l - 6).attr('y', y).attr('dy', '0.35em').attr('text-anchor', 'end')
+      .attr('fill', c.muted).attr('font-size', 'var(--cds-font-size-caption)').text(JX.int);
+    const every = Math.ceil(rows.length / Math.max(1, Math.floor((W - m.l) / 52)));
+    svg.append('g').selectAll('text').data(rows.filter((_, i) => i % every === 0)).join('text').attr('x', (r) => x(r.mes) + x.bandwidth() / 2).attr('y', H - 6)
+      .attr('text-anchor', 'middle').attr('fill', c.muted).attr('font-size', 'var(--cds-font-size-caption)').text((r) => lab(r.mes));
+    const tip = JX.tip(el);
+    const bw = Math.min(32, x.bandwidth()), off = (x.bandwidth() - bw) / 2;
+    const g = svg.selectAll('g.b').data(rows).join('g').attr('class', 'b');
+    g.each(function (r) {
+      let acc = 0;
+      for (const [f, col] of [['fav', c.fav], ['parc', c.parc], ['desf', c.desf]]) {
+        const v = Number(r[f]) || 0;
+        d3.select(this).append('rect').attr('x', x(r.mes) + off).attr('width', bw).attr('y', y(acc + v)).attr('height', Math.max(0, y(acc) - y(acc + v))).attr('fill', col);
+        acc += v;
+      }
+    });
+    g.append('rect').attr('x', (r) => x(r.mes)).attr('width', x.bandwidth()).attr('y', m.t).attr('height', H - m.b - m.t).attr('fill', 'transparent')
+      .on('mousemove', (ev, r) => tip.show(ev, lab(r.mes), [`Favoráveis ${JX.int(r.fav)}`, `Parciais ${JX.int(r.parc)}`, `Desfavoráveis ${JX.int(r.desf)}`, `Índice ${JX.pct(r.frag)}`]))
+      .on('mouseleave', () => tip.hide());
+  });
+</script>
+
+<p class="jx-rodape">Moury Fernandes &amp; Marsha Oliveira Advocacia · levantamento a partir do Comunica PJe (DJEN/CNJ) e da base de processos Axia.</p>
+</div>
+<script>
+  dash._run();
+  let largura = window.innerWidth, espera;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === largura) return;
+    largura = window.innerWidth;
+    clearTimeout(espera); espera = setTimeout(dash._run, 150);
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', dash._run);
+</script>
+</body>
+</html>
